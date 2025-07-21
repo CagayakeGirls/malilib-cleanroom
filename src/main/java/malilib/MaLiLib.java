@@ -1,6 +1,10 @@
 package malilib;
 
+import malilib.event.dispatch.RenderEventDispatcherImpl;
+import malilib.registry.Registry;
+import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -19,6 +23,14 @@ public class MaLiLib
         if (MaLiLibConfigs.Debug.DEBUG_MESSAGES.getBooleanValue())
         {
             LOGGER.info(str, args);
+        }
+    }
+
+    @SubscribeEvent
+    public static void arrowNocked(GuiScreenEvent.DrawScreenEvent.Post event) {
+        if (event.getGui().mc.world != null && event.getGui().mc.player != null)
+        {
+            ((RenderEventDispatcherImpl) Registry.RENDER_EVENT_DISPATCHER).onRenderScreenPost(event.getRenderPartialTicks());
         }
     }
 }

@@ -43,15 +43,16 @@ public abstract class EntityRendererMixin
         }
     }
 
-    @Inject(method = "updateCameraAndRender(FJ)V", at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/client/gui/GuiScreen;drawScreen(IIF)V",
-            shift = Shift.AFTER))
-    private void onRenderScreenPost(float tickDelta, long nanoTime, CallbackInfo ci)
-    {
-        if (this.mc.world != null && this.mc.player != null)
-        {
-            ((RenderEventDispatcherImpl) Registry.RENDER_EVENT_DISPATCHER).onRenderScreenPost(tickDelta);
-        }
-    }
+    // Moved to MaLiLib, as forge patches break this mixin
+    //@Inject(method = "updateCameraAndRender(FJ)V", at = @At(
+    //        value = "INVOKE",
+    //        target = "Lnet/minecraft/client/gui/GuiScreen;drawScreen(IIF)V",
+    //        shift = Shift.AFTER))
+    //private void onRenderScreenPost(float tickDelta, long nanoTime, CallbackInfo ci)
+    //{
+    //    if (this.mc.world != null && this.mc.player != null)
+    //    {
+    //        ((RenderEventDispatcherImpl) Registry.RENDER_EVENT_DISPATCHER).onRenderScreenPost(tickDelta);
+    //    }
+    //}
 }
