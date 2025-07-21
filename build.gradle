@@ -175,17 +175,11 @@ tasks.publish.dependsOn build
 publishing {
 	publications {
 		mavenJava(MavenPublication) {
-			artifactId = project.base.archivesName
+			artifactId = project.mod_file_name + '-' + project.minecraft_version_out
 
 			// add all the jars that should be included when publishing to maven
 			//artifact(jar) { builtBy remapJar }
 			from components.java
-		}
-	}
-
-	repositories {
-		maven {
-			url = "$projectDir/../../CommonMaven"
 		}
 	}
 }
