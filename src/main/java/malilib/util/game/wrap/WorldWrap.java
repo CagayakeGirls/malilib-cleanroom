@@ -70,11 +70,11 @@ public class WorldWrap
 
     public static void loadClientChunk(int chunkX, int chunkZ, WorldClient world)
     {
-        world.m_5061960()/*getChunkProvider()*/.loadChunk(chunkX, chunkZ);
+        world.getChunkProvider().loadChunk(chunkX, chunkZ);
     }
 
     public static void unloadClientChunk(int chunkX, int chunkZ, WorldClient world)
     {
-        world.m_5061960()/*getChunkProvider()*/.unloadChunk(chunkX, chunkZ);
+        world.getChunkProvider().unloadChunk(chunkX, chunkZ);
     }
 }

@@ -344,11 +344,11 @@ public class NbtWrap
 
     public static NBTTagCompound copy(NBTTagCompound tag)
     {
-        return tag.m_1696745();//copy();
+        return tag.copy();
     }
 
     public static NBTTagList copy(NBTTagList tag)
     {
-        return tag.m_4371252();//copy();
+        return tag.copy();
     }
 }

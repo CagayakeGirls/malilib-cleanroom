@@ -1,17 +1,13 @@
 package malilib;
 
-import net.fabricmc.api.ClientModInitializer;
+import net.minecraftforge.fml.common.Mod;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class MaLiLib implements ClientModInitializer
+@Mod(modid = MaLiLibReference.MOD_ID, name = MaLiLibReference.MOD_NAME, version = MaLiLibReference.MOD_VERSION, guiFactory = "malilib.compat.forge.MaLiLibGuiFactory")
+public class MaLiLib
 {
     public static final Logger LOGGER = LogManager.getLogger(MaLiLibReference.MOD_ID);
-
-    @Override
-    public void onInitializeClient()
-    {
-    }
 
     public static boolean canShowCoordinates()
     {

@@ -1,0 +1,11 @@
+[{
+  "modid": "malilib",
+  "name": "MaCrlLib",
+  "version": "${mod_version}",
+  "mcversion": "1.12.2",
+  "description": "Malilib unofficial Cleanroom port. A library mod for (masa's) client-side mods.",
+  "authorList": ["RawDiamondMC", "CagayakeGirls"],
+  "credits": "masa",
+  "url": "https://github.com/CagayakeGirls/malilib-cleanroom",
+  "logoFile": "assets/malilib/icon.png"
+}]

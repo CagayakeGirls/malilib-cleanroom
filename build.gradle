@@ -1,11 +1,12 @@
+import org.jetbrains.gradle.ext.Gradle
+
 plugins {
-	id 'fabric-loom' version '1.4-SNAPSHOT'
-	id 'ploceus' version '1.4.2'
+    id 'java'
+    id 'java-library'
+    id 'org.jetbrains.gradle.plugin.idea-ext' version '1.1.9'
+    id 'com.gtnewhorizons.retrofuturagradle' version '1.4.1'
 	id 'maven-publish'
 }
-
-sourceCompatibility = JavaVersion.VERSION_1_8
-targetCompatibility = JavaVersion.VERSION_1_8
 
 group = project.mod_id // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 version = project.mod_version
@@ -25,35 +26,38 @@ repositories {
 	// See https://docs.gradle.org/current/userguide/declaring_repositories.html
 	// for more information about repositories.
 	// maven { url 'https://maven.terraformersmc.com/releases/' }
+    maven {
+        name = 'CleanroomMC Maven'
+        url = 'https://maven.cleanroommc.com'
+    }
+}
+
+minecraft {
+    mcVersion.set('1.12.2')
+
+    mcpMappingChannel.set('stable')
+    mcpMappingVersion.set('39')
+
+    username.set("Dev")
+
+    extraRunJvmArguments.addAll(['-ea:' + group, '-Dmixin.hotSwap=true', '-Dmixin.checks.interfaces=true', '-Dmixin.debug.export=true'])
+
+    injectedTags.put("MOD_VERSION", project.version)
 }
 
 dependencies {
-	minecraft "com.mojang:minecraft:${project.minecraft_version}"
-
-	mappings loom.layered {
-		addLayer ploceus.mcpMappings('stable', '1.12', '39')
-		//mappings "net.ornithemc:feather:${project.minecraft_version}+build.${project.feather_build}:v2"
-		//addLayer ploceus.nestedMappings() // remove this line if not using nests
-	}
-	//nests "net.ornithemc:nests:${project.minecraft_version}+build.${project.nests_build}" // remove this line if not using nests
-
-	modImplementation "net.fabricmc:fabric-loader:${project.fabric_loader_version}"
-	modImplementation "com.terraformersmc:modmenu:${project.mod_menu_version}"
-	implementation "com.google.code.findbugs:jsr305:3.0.2"
-
-	//ploceus.addCommonLibraries()
-	ploceus.dependOsl(project.osl_version)
-}
-
-loom {
-	decompilers {
-		vineflower {
-			options.put("ind", "	")
-			//preferences {
-			//	ind = '	'
-			//}
-		}
-	}
+    runtimeOnly 'com.cleanroommc:strip-latest-forge-requirements:1.0'
+    runtimeOnly 'com.cleanroommc:osxnarratorblocker:1.0'
+    annotationProcessor 'org.ow2.asm:asm-debug-all:5.2'
+    annotationProcessor 'com.google.guava:guava:32.1.2-jre'
+    annotationProcessor 'com.google.code.gson:gson:2.8.9'
+    String mixinBooter = modUtils.enableMixins('zone.rong:mixinbooter:10.6')
+    api (mixinBooter) {
+        transitive = false
+    }
+    annotationProcessor (mixinBooter) {
+        transitive = false
+    }
 }
 
 processResources {
@@ -66,7 +70,7 @@ processResources {
 
 	inputs.property "mod_version", version
 
-	filesMatching("fabric.mod.json") {
+	filesMatching("mcmod.info") {
 		expand "mod_version": version
 	}
 }
@@ -78,10 +82,13 @@ tasks.withType(JavaCompile).configureEach {
 	// If Javadoc is generated, this must be specified in that task too.
 	it.options.encoding = "UTF-8"
 
-	it.options.release = 8
+	//it.options.release = 8
 }
 
 java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(8))
+    }
 	// Still required by IDEs such as Eclipse and Visual Studio Code
 	sourceCompatibility = JavaVersion.VERSION_1_8
 	targetCompatibility = JavaVersion.VERSION_1_8
@@ -102,13 +109,60 @@ jar {
 	}
 }
 
+idea {
+    module {
+        inheritOutputDirs = true
+    }
+    project {
+        settings {
+            runConfigurations {
+                "1. Run Client"(Gradle) {
+                    taskNames = ["runClient"]
+                }
+                "2. Run Server"(Gradle) {
+                    taskNames = ["runServer"]
+                }
+                "3. Run Obfuscated Client"(Gradle) {
+                    taskNames = ["runObfClient"]
+                }
+                "4. Run Obfuscated Server"(Gradle) {
+                    taskNames = ["runObfServer"]
+                }
+            }
+            compiler.javac {
+                afterEvaluate {
+                    javacAdditionalOptions = "-encoding utf8"
+                    moduleJavacAdditionalOptions = [
+                            (project.name + ".main"): tasks.compileJava.options.compilerArgs.collect { '"' + it + '"' }.join(' ')
+                    ]
+                }
+            }
+        }
+    }
+}
+
+tasks.named('prepareObfModsFolder').configure {
+    finalizedBy 'prioritizeCoremods'
+}
+
+tasks.register('prioritizeCoremods') {
+    dependsOn 'prepareObfModsFolder'
+    doLast {
+        fileTree('run/obfuscated').forEach {
+            if (it.isFile() && it.name =~ '(mixinbooter|configanytime)(-)([0-9])+\\.+([0-9])+(.jar)') {
+                it.renameTo(new File(it.parentFile, "!${it.name}"))
+            }
+        }
+    }
+}
+
 // Configure the maven publication
 tasks.publish.dependsOn build
 
 publishing {
 	publications {
 		mavenJava(MavenPublication) {
-			artifactId project.archivesBaseName
+			artifactId = project.base.archivesName
 
 			// add all the jars that should be included when publishing to maven
 			//artifact(jar) { builtBy remapJar }
@@ -118,7 +172,7 @@ publishing {
 
 	repositories {
 		maven {
-			url "$projectDir/../../CommonMaven"
+			url = "$projectDir/../../CommonMaven"
 		}
 	}
 }
