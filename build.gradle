@@ -40,7 +40,7 @@ minecraft {
 
     username.set("Dev")
 
-    extraRunJvmArguments.addAll(['-ea:' + group, '-Dmixin.hotSwap=true', '-Dmixin.checks.interfaces=true', '-Dmixin.debug.export=true'])
+    extraRunJvmArguments.addAll(['-ea:' + group, '-Dfml.coreMods.load=malilib.compat.forge.MaLiLibLoadingPlugin' ,'-Dmixin.hotSwap=true', '-Dmixin.checks.interfaces=true', '-Dmixin.debug.export=true'])
 
     injectedTags.put("MOD_VERSION", project.version)
 }
@@ -51,7 +51,7 @@ dependencies {
     annotationProcessor 'org.ow2.asm:asm-debug-all:5.2'
     annotationProcessor 'com.google.guava:guava:32.1.2-jre'
     annotationProcessor 'com.google.code.gson:gson:2.8.9'
-    String mixinBooter = modUtils.enableMixins('zone.rong:mixinbooter:10.6')
+    String mixinBooter = modUtils.enableMixins('zone.rong:mixinbooter:10.6', 'mixins.malilib.refmap.json')
     api (mixinBooter) {
         transitive = false
     }
@@ -107,6 +107,14 @@ jar {
 	from('LICENSE') {
 		rename { "${it}_${base.archivesName.get()}" }
 	}
+    manifest {
+        def currentTasks = gradle.startParameter.taskNames
+        def attribute_map = [:]
+        attribute_map['FMLCorePlugin'] = 'malilib.compat.forge.MaLiLibLoadingPlugin'
+        attribute_map['FMLCorePluginContainsFMLMod'] = true
+        attribute_map['ForceLoadAsMod'] = currentTasks[0] == 'build' || currentTasks[0] == 'prepareObfModsFolder' || currentTasks[0] == 'runObfClient'
+        attributes(attribute_map)
+    }
 }
 
 idea {
