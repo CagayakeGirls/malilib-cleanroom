@@ -30,6 +30,10 @@ repositories {
         name = 'CleanroomMC Maven'
         url = 'https://maven.cleanroommc.com'
     }
+    maven {
+        name = "GTNH Maven"
+        url = uri("https://nexus.gtnewhorizons.com/repository/public/")
+    }
 }
 
 minecraft {
@@ -42,7 +46,8 @@ minecraft {
 
     extraRunJvmArguments.addAll(['-ea:' + group, '-Dfml.coreMods.load=malilib.compat.forge.MaLiLibLoadingPlugin' ,'-Dmixin.hotSwap=true', '-Dmixin.checks.interfaces=true', '-Dmixin.debug.export=true'])
 
-    injectedTags.put("MOD_VERSION", project.version)
+    injectedTags.put("@MOD_VERSION@", project.version)
+    tagReplacementFiles.add("MaLiLibReference.java")
 }
 
 dependencies {
